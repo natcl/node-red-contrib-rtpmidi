@@ -3,8 +3,7 @@
   "version": "0.0.1",
   "description": "Node-RED template example project",
   "dependencies": {
-    "node-red": "~0.15.0",
-    "node-red-contrib-template": "../"
+    "node-red": "~0.16.0"
   },
   "repository": {
     "type": "git",
@@ -12,6 +11,6 @@
   },
   "keywords": ["node-red", "template"],
   "scripts": {
-    "start": "npm install -f ; node node_modules/node-red/red.js -v -u ."
+    "start": "node node_modules/node-red/red.js -v -u ."
   }
 }

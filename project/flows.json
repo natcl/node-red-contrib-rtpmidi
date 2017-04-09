@@ -1,0 +1,32 @@
+[
+    {
+        "id": "b4a23bd2.4e1b08",
+        "type": "tab",
+        "label": "Flow 1"
+    },
+    {
+        "id": "792af955.1a707",
+        "type": "rtp-midi-mtc-in-node",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "x": 300,
+        "y": 100,
+        "wires": [
+            [
+                "63b27a9c.1fca44"
+            ]
+        ]
+    },
+    {
+        "id": "63b27a9c.1fca44",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "active": false,
+        "console": "false",
+        "complete": "false",
+        "x": 590,
+        "y": 160,
+        "wires": []
+    }
+]

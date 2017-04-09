@@ -1,0 +1,27 @@
+<script type="text/javascript">
+    RED.nodes.registerType('rtp-midi-mtc-in-node',{
+        category: 'input',
+        color: '#a6bbcf',
+        defaults: {
+            name: {value:""}
+        },
+        inputs:0,
+        outputs:1,
+        icon: "midi_port.png",
+        label: function() {
+            return this.name||"rtpMIDI MTC";
+        },
+        paletteLabel: "rtpMIDI MTC"
+    });
+</script>
+
+<script type="text/x-red" data-template-name="rtp-midi-mtc-in-node">
+    <div class="form-row">
+        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/x-red" data-help-name="rtp-midi-mtc-in-node">
+    <p>Receives MTC timecode from a remote RTP-MIDI session.</p>
+</script>
