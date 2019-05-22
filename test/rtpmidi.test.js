@@ -17,9 +17,9 @@ describe('Testing the basic node configuration', () => {
 
     // n1 should always be the tested node, declare before unloading
     const n1 = helper.getNode('n1');
-    helper.unload();
 
-    // Stream ended
+    helper.unload(); // Why node.emit('close') is being called
+    // Ensures that on close is properly handled
     n1._session.should.have.property('readyState', 2);
 
     helper.stopServer(done);
@@ -47,6 +47,7 @@ describe('Testing the basic node configuration', () => {
       _session.should.have.property('bonjourName', 'Node-RED RTP-MIDI session');
       _session.should.have.property('port', 5006);
       _session.should.have.property('readyState', 0);
+      _session.should.have.property('ipVersion', 4);
 
       done();
     });

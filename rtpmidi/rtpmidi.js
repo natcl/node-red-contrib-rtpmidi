@@ -14,6 +14,7 @@ module.exports = function(RED) {
     node._mtc = new rtpmidi.MTC();
     node._mtc.setSource(node._session);
     node._session.connect({ address: '127.0.0.1', port: 5004 });
+
     node._mtc.on('change', function() {
       // Log the time code HH:MM:SS:FF
       node.send({payload: {position: node._mtc.songPosition, time: node._mtc.getSMTPEString()}});
