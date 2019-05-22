@@ -24,5 +24,6 @@ module.exports = function(RED) {
     });
 
   }
+
   RED.nodes.registerType("rtp-midi-mtc-in-node", RTPMidiMTCInNode);
 };

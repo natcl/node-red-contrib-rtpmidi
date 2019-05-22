@@ -66,4 +66,34 @@ describe('Testing the basic node configuration', () => {
       done();
     });
   });
+
+  it('Should also send the right payload using the helper node inspector method', (done) => {
+    const flow = [
+      { id: "n1", type: "rtp-midi-mtc-in-node", wires: [["n2"]] },
+      { id: "n2", type: "helper" }
+    ];
+
+    helper.load(rtpMIDINode, flow, function () {
+      var n1 = helper.getNode("n1");
+      var n2 = helper.getNode("n2");
+      n2.on("input", function (msg) {
+        const { payload }  = msg;
+        payload.should.have.property('position');
+        payload.should.have.property('time');
+
+        const { position, time } = payload;
+
+        position.should.equal(0);
+        time.should.equal(n1.mtc.getSMTPEString());
+        // Before getting any real MTC event, this is normal
+        time.should.equal('00:00:00:00');
+
+        done();
+      });
+
+      n1.mtc.emit('change');
+    });
+  });
+
+
 });
