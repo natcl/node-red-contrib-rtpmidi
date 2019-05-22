@@ -14,7 +14,14 @@ describe('Testing the basic node configuration', () => {
 
 
   afterEach((done) => {
+
+    // n1 should always be the tested node, declare before unloading
+    const n1 = helper.getNode('n1');
     helper.unload();
+
+    // Stream ended
+    n1._session.should.have.property('readyState', 2);
+
     helper.stopServer(done);
   });
 
@@ -27,8 +34,19 @@ describe('Testing the basic node configuration', () => {
       n1.should.have.property('id', 'n1');
       n1.should.have.property('type', 'rtp-midi-mtc-in-node');
       n1.should.have.property('name', 'test-load-node');
-      n1.should.have.property('mtc');
-      n1.mtc.should.be.an.instanceOf(rtpmidi.MTC);
+
+      n1.should.have.property('_mtc');
+      n1.should.have.property('_session');
+
+      const { _mtc, _session } = n1;
+
+      _mtc.should.be.an.instanceOf(rtpmidi.MTC);
+
+      _session.should.be.an.instanceOf(rtpmidi.Session);
+      _session.should.have.property('localName', 'Node-RED RTP-MIDI session');
+      _session.should.have.property('bonjourName', 'Node-RED RTP-MIDI session');
+      _session.should.have.property('port', 5006);
+      _session.should.have.property('readyState', 0);
 
       done();
     });
@@ -47,7 +65,7 @@ describe('Testing the basic node configuration', () => {
       * node.send is called when an mtc change event happens.
       * Which means something was received on the network.
       */
-      n1.mtc.emit('change');
+      n1._mtc.emit('change');
 
       const { lastArg } = n1.send.getCall(0);
       lastArg.should.have.property('payload');
@@ -59,7 +77,7 @@ describe('Testing the basic node configuration', () => {
       const { position, time } = payload;
 
       position.should.equal(0);
-      time.should.equal(n1.mtc.getSMTPEString());
+      time.should.equal(n1._mtc.getSMTPEString());
       // Before getting any real MTC event, this is normal
       time.should.equal('00:00:00:00');
 
@@ -84,14 +102,14 @@ describe('Testing the basic node configuration', () => {
         const { position, time } = payload;
 
         position.should.equal(0);
-        time.should.equal(n1.mtc.getSMTPEString());
+        time.should.equal(n1._mtc.getSMTPEString());
         // Before getting any real MTC event, this is normal
         time.should.equal('00:00:00:00');
 
         done();
       });
 
-      n1.mtc.emit('change');
+      n1._mtc.emit('change');
     });
   });
 
