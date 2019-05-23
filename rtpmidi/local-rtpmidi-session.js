@@ -7,5 +7,5 @@ module.exports = function(RED) {
     this.port = n.port;
   }
 
-  RED.nodes.registerType("local-rtpmidi-session",LocalRTPMIDISession);
+  RED.nodes.registerType("local-rtpmidi-session", LocalRTPMIDISession);
 };

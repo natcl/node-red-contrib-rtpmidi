@@ -27,8 +27,25 @@
 
 <script type="text/x-red" data-template-name="rtp-midi-mtc-in-node">
   <div class="form-row">
-    <label for="node-input-name"><i class="icon-tag"></i> Name</label>
+    <label for="node-input-name">
+      <i class="icon-tag"></i>
+      <span>Name</span>
+    </label>
     <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-local">
+      <i class="fa fa-globe"></i>
+      <span>Local RTP-MIDI Session</span>
+    </label>
+    <input type="text" id="node-input-local">
+  </div>
+  <div class="form-row">
+    <label for="node-input-remote">
+      <i class="fa fa-globe"></i>
+      <span>Remote RTP-MIDI Session</span>
+    </label>
+    <input type="text" id="node-input-remote" data-i18n="[placeholder]common.label.remote">
   </div>
 </script>
 
