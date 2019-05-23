@@ -3,6 +3,8 @@ const rtpmidi = require('rtpmidi');
 const sinon = require('sinon');
 
 const rtpMIDINode = require('../rtpmidi/rtpmidi');
+const localConfigNode = require('../rtpmidi/local-rtpmidi-session');
+const remoteConfigNode = require('../rtpmidi/remote-rtpmidi-session');
 
 helper.init(require.resolve('node-red'));
 
@@ -12,7 +14,6 @@ describe('Testing the basic node configuration', () => {
     helper.startServer(done);
   });
 
-
   afterEach((done) => {
 
     // n1 should always be the tested node, declare before unloading
@@ -20,83 +21,81 @@ describe('Testing the basic node configuration', () => {
 
     helper.unload(); // Why node.emit('close') is being called
     // Ensures that on close is properly handled
-    n1._session.should.have.property('readyState', 2);
+
+    if(!!n1._session)
+      n1._session.should.have.property('readyState', 2);
 
     helper.stopServer(done);
   });
 
   it('Should load the right properties', (done) => {
-    const flow = [{ id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node" }];
+    const flow = [
+      { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
+      { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
+      { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1" }
+    ];
 
-    helper.load(rtpMIDINode, flow, () => {
-      const n1 = helper.getNode("n1");
 
-      n1.should.have.property('id', 'n1');
-      n1.should.have.property('type', 'rtp-midi-mtc-in-node');
-      n1.should.have.property('name', 'test-load-node');
+    helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {
+      try {
+        const l1 = helper.getNode("l1");
+        const r1 = helper.getNode("r1");
+        const n1 = helper.getNode("n1");
 
-      n1.should.have.property('_mtc');
-      n1.should.have.property('_session');
+        n1.should.not.have.property('_err');
 
-      const { _mtc, _session } = n1;
+        n1.should.have.property('id', 'n1');
+        n1.should.have.property('type', 'rtp-midi-mtc-in-node');
+        n1.should.have.property('name', 'test-load-node');
 
-      _mtc.should.be.an.instanceOf(rtpmidi.MTC);
+        n1.should.have.property('_mtc');
+        n1.should.have.property('_session');
 
-      _session.should.be.an.instanceOf(rtpmidi.Session);
-      _session.should.have.property('localName', 'Node-RED RTP-MIDI session');
-      _session.should.have.property('bonjourName', 'Node-RED RTP-MIDI session');
-      _session.should.have.property('port', 5006);
-      _session.should.have.property('readyState', 0);
-      _session.should.have.property('ipVersion', 4);
+        const { _mtc, _session } = n1;
 
-      done();
+        _mtc.should.be.an.instanceOf(rtpmidi.MTC);
+
+        _session.should.be.an.instanceOf(rtpmidi.Session);
+        _session.should.have.property('localName', l1.localName);
+        _session.should.have.property('bonjourName', l1.bonjourName);
+        _session.should.have.property('port', l1.port);
+        _session.should.have.property('readyState', 0);
+        _session.should.have.property('ipVersion', 4);
+
+        done();
+      } catch (error) {
+        done(error);
+      }
     });
   });
 
   it('Should send the right payload when mtc gets a change event', (done) => {
-    const flow = [{ id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node" }];
-    //console.log(Object.keys(helper._logSpy))
-    helper.load(rtpMIDINode, flow, () => {
-      const n1 = helper.getNode("n1");
-
-      // Lets spy on our node send method
-      sinon.spy(n1, "send");
-
-      /*
-      * node.send is called when an mtc change event happens.
-      * Which means something was received on the network.
-      */
-      n1._mtc.emit('change');
-
-      const { lastArg } = n1.send.getCall(0);
-      lastArg.should.have.property('payload');
-
-      const { payload }  = lastArg;
-      payload.should.have.property('position');
-      payload.should.have.property('time');
-
-      const { position, time } = payload;
-
-      position.should.equal(0);
-      time.should.equal(n1._mtc.getSMTPEString());
-      // Before getting any real MTC event, this is normal
-      time.should.equal('00:00:00:00');
-
-      done();
-    });
-  });
-
-  it('Should also send the right payload using the helper node inspector method', (done) => {
     const flow = [
-      { id: "n1", type: "rtp-midi-mtc-in-node", wires: [["n2"]] },
-      { id: "n2", type: "helper" }
+      { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
+      { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
+      { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1" }
     ];
 
-    helper.load(rtpMIDINode, flow, function () {
-      var n1 = helper.getNode("n1");
-      var n2 = helper.getNode("n2");
-      n2.on("input", function (msg) {
-        const { payload }  = msg;
+    helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {
+
+      try {
+        const n1 = helper.getNode("n1");
+
+        n1.should.not.have.property('_err');
+
+        // Lets spy on our node send method
+        sinon.spy(n1, "send");
+
+        /*
+        * node.send is called when an mtc change event happens.
+        * Which means something was received on the network.
+        */
+        n1._mtc.emit('change');
+
+        const { lastArg } = n1.send.getCall(0);
+        lastArg.should.have.property('payload');
+
+        const { payload }  = lastArg;
         payload.should.have.property('position');
         payload.should.have.property('time');
 
@@ -108,11 +107,48 @@ describe('Testing the basic node configuration', () => {
         time.should.equal('00:00:00:00');
 
         done();
-      });
-
-      n1._mtc.emit('change');
+      } catch (error) {
+        done(error);
+      }
     });
   });
 
+  it('Should also send the right payload using the helper node inspector method', (done) => {
+    const flow = [
+      { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
+      { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
+      { id: "n1", type: "rtp-midi-mtc-in-node", local: 'l1', remote: 'r1', wires: [["n2"]] },
+      { id: "n2", type: "helper" }
+    ];
 
+    helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, function () {
+
+      try {
+        const n1 = helper.getNode("n1");
+        const n2 = helper.getNode("n2");
+
+        n1.should.not.have.property('_err');
+        n2.should.not.have.property('_err');
+
+        n2.on("input", function (msg) {
+          const { payload }  = msg;
+          payload.should.have.property('position');
+          payload.should.have.property('time');
+
+          const { position, time } = payload;
+
+          position.should.equal(0);
+          time.should.equal(n1._mtc.getSMTPEString());
+          // Before getting any real MTC event, this is normal
+          time.should.equal('00:00:00:00');
+
+          done();
+        });
+
+        n1._mtc.emit('change');
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
 });

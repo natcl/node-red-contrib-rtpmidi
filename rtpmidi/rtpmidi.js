@@ -5,25 +5,40 @@ module.exports = function(RED) {
     RED.nodes.createNode(this, config);
     var node = this;
 
-    node._session = rtpmidi.manager.createSession({
-      localName: 'Node-RED RTP-MIDI session',
-      bonjourName: 'Node-RED RTP-MIDI session',
-      port: 5006
-    });
+    try {
 
-    node._mtc = new rtpmidi.MTC();
-    node._mtc.setSource(node._session);
-    node._session.connect({ address: '127.0.0.1', port: 5004 });
+      if(!config.local) throw new Error("ERROR: Missing local session config node");
+      if(!config.remote) throw new Error("ERROR: Missing local session config node");
 
-    node._mtc.on('change', function() {
-      // Log the time code HH:MM:SS:FF
-      node.send({payload: {position: node._mtc.songPosition, time: node._mtc.getSMTPEString()}});
-    });
+      const local = RED.nodes.getNode(config.local);
+      const remote = RED.nodes.getNode(config.remote);
 
-    node.on('close', function() {
-      node._session.end();
-    });
+      node._session = rtpmidi.manager.createSession({
+        localName: local.localName,
+        bonjourName: local.bonjourName,
+        port: local.port
+      });
 
+      node._mtc = new rtpmidi.MTC();
+      node._mtc.setSource(node._session);
+
+      node._remote = { address: remote.host, port: remote.port }
+
+      node._session.connect(node._remote);
+
+      node._mtc.on('change', function() {
+        // Log the time code HH:MM:SS:FF
+        node.send({payload: {position: node._mtc.songPosition, time: node._mtc.getSMTPEString()}});
+      });
+
+      node.on('close', function() {
+        node._session.end();
+        node.status({ fill:"blue", shape:"dot", text:"closed"});
+      });
+    } catch (error) {
+      node._err = error.message;
+      node.status({ fill:"red", shape:"dot", text: "error"});
+    }
   }
 
   RED.nodes.registerType("rtp-midi-mtc-in-node", RTPMidiMTCInNode);
