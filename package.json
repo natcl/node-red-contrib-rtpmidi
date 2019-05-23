@@ -17,7 +17,9 @@
   ],
   "node-red": {
     "nodes": {
-      "rtpmidi": "rtpmidi/rtpmidi.js"
+      "rtpmidi": "rtpmidi/rtpmidi.js",
+      "local-config": "rtpmidi/local-rtpmidi-session.js",
+      "remote-config": "rtpmidi/remote-rtpmidi-session.js"
     }
   },
   "devDependencies": {
