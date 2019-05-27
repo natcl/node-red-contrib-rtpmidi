@@ -16,13 +16,15 @@ module.exports = function(RED) {
       node._session = rtpmidi.manager.createSession({
         localName: local.localName,
         bonjourName: local.bonjourName,
-        port: local.port
+        port: parseInt(local.port) // When sent from UI, parsed as string
       });
 
       node._mtc = new rtpmidi.MTC();
       node._mtc.setSource(node._session);
-
-      node._remote = { address: remote.host, port: remote.port }
+      node._remote = {
+        address: remote.host,
+        port: parseInt(remote.port) // When sent from UI, parsed as string
+      }
 
       node._session.connect(node._remote);
 
