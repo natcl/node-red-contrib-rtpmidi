@@ -1,5 +1,15 @@
 const rtpmidi = require('rtpmidi');
 
+var midiTypes = {
+  '8': 'noteoff',
+  '9': 'noteon',
+  '10': 'polyat',
+  '11': 'controlchange',
+  '12': 'programchange',
+  '13': 'channelat',
+  '14': 'pitchbend'
+};
+
 module.exports = function(RED) {
   function RTPMidiMTCInNode(config) {
     RED.nodes.createNode(this, config);
@@ -30,6 +40,21 @@ module.exports = function(RED) {
 
       node._session.on('ready', function() {
         node.status({ fill:"green", shape:"dot", text:"ready"});
+      });
+
+      node._session.on('message', function(deltaTime, message) {
+        // For compliance with the node-red-contrib-midi package
+        const msg = {};
+        msg.midi = {};
+        msg.midi.raw = message.slice();
+        msg.payload = message.splice(1);
+
+        msg.midi.deltaTime = deltaTime;
+        msg.midi.channel = (message & 0xF) + 1;
+        msg.midi.type = midiTypes[message >> 4];
+        msg.midi.data = msg.payload;
+
+        node.send(msg);
       });
 
       node._mtc.on('change', function() {

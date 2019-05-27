@@ -113,6 +113,56 @@ describe('Testing the basic node configuration', () => {
     });
   });
 
+  it('Should send the right payload when session gets a message event', (done) => {
+    const flow = [
+      { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
+      { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
+      { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1", wires: [['n2']] },
+      { id: "n2", type: "helper" }
+    ];
+
+    const midiMessage = [0x90, 0x0e, 0xff];
+    const deltaTime = 0;
+
+    helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {
+      try {
+        const n1 = helper.getNode("n1");
+        const n2 = helper.getNode("n2");
+
+        n1.should.not.have.property('_err');
+
+        // Copy before sending as the node with call operations on the message instance
+        const midiMessageClone = midiMessage.slice(0);
+
+        n2.on('input', (msg) => {
+          try {
+            msg.should.have.property('midi');
+            msg.should.have.property('payload');
+
+            const { midi, payload } = msg;
+            const params = midiMessageClone.slice(1);
+
+            midi.should.have.property('raw', midiMessageClone);
+            midi.should.have.property('deltaTime', deltaTime);
+            midi.should.have.property('channel', 1);
+            midi.should.have.property('type', 'noteon');
+            midi.should.have.property('data', params);
+
+            payload.should.equal(midi.data);
+
+            done();
+          } catch (error) {
+            done(error);
+          }
+        });
+
+        n1._session.emit('message', deltaTime, midiMessage);
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
+
   it('Should also send the right payload using the helper node inspector method', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
