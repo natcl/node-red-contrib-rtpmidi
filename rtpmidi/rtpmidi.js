@@ -26,6 +26,10 @@ module.exports = function(RED) {
 
       node._session.connect(node._remote);
 
+      node._session.on('ready', function() {
+        node.status({ fill:"green", shape:"dot", text:"ready"});
+      });
+
       node._mtc.on('change', function() {
         // Log the time code HH:MM:SS:FF
         node.send({payload: {position: node._mtc.songPosition, time: node._mtc.getSMTPEString()}});

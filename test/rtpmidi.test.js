@@ -152,3 +152,39 @@ describe('Testing the basic node configuration', () => {
     });
   });
 });
+
+describe('Testing the configuration nodes', () => {
+  beforeEach((done) => {
+    helper.startServer(done);
+  });
+
+  afterEach((done) => {
+    helper.unload();
+    helper.stopServer(done);
+  });
+
+  it('Should load the right values', (done) => {
+    const flow = [
+      { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
+      { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 }
+    ];
+
+    helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {
+      try {
+        const l1 = helper.getNode('l1');
+        const r1 = helper.getNode('r1');
+
+        l1.should.have.property('localName', 'TEST LOCAL NAME');
+        l1.should.have.property('bonjourName', 'TEST BONJOUR NAME');
+        l1.should.have.property('port', 5004);
+
+        r1.should.have.property('host', '127.0.0.1');
+        r1.should.have.property('port', 5006);
+
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
+});
