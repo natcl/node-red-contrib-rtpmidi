@@ -1,0 +1,38 @@
+<script type="text/javascript">
+  RED.nodes.registerType('local-rtpmidi-session', {
+    category: 'config',
+    defaults: {
+      localName: {
+        value: 'Node-RED RTP-MIDI session',
+        required:true
+      },
+      bonjourName: {
+        value: 'Node-RED RTP-MIDI session',
+        required:true
+      },
+      port: {
+        value: 5006,
+        required:true,
+        validate:RED.validators.number()
+      },
+    },
+    label: function() {
+      return this.localName + " - " + this.bonjourName + ":" + this.port;
+    }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="local-rtpmidi-session">
+  <div class="form-row">
+    <label for="node-config-input-localName"><i class="icon-bookmark"></i> Local Name</label>
+    <input type="text" id="node-config-input-localName">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-bonjourName"><i class="icon-bookmark"></i> Bonjour Name</label>
+    <input type="text" id="node-config-input-bonjourName">
+  </div>
+  <div class="form-row">
+    <label for="node-config-input-port"><i class="icon-bookmark"></i> Port</label>
+    <input type="text" id="node-config-input-port">
+  </div>
+</script>

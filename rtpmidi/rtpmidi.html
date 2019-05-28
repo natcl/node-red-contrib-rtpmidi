@@ -1,27 +1,54 @@
 <script type="text/javascript">
-    RED.nodes.registerType('rtp-midi-mtc-in-node',{
-        category: 'input',
-        color: '#a6bbcf',
-        defaults: {
-            name: {value:""}
-        },
-        inputs:0,
-        outputs:1,
-        icon: "midi_port.png",
-        label: function() {
-            return this.name||"rtpMIDI MTC";
-        },
-        paletteLabel: "rtpMIDI MTC"
-    });
+  RED.nodes.registerType('rtp-midi-mtc-in-node', {
+    category: 'input',
+    color: '#a6bbcf',
+    defaults: {
+      local: {
+        value: "",
+        type: "local-rtpmidi-session",
+        required: true
+      },
+      remote: {
+        value: "",
+        type: "remote-rtpmidi-session",
+        required: true
+      },
+      name: { value: "" }
+    },
+    inputs: 0,
+    outputs: 1,
+    icon: "midi_port.png",
+    label: function() {
+      return this.name || "rtpMIDI MTC";
+    },
+    paletteLabel: "rtpMIDI MTC"
+  });
 </script>
 
 <script type="text/x-red" data-template-name="rtp-midi-mtc-in-node">
-    <div class="form-row">
-        <label for="node-input-name"><i class="icon-tag"></i> Name</label>
-        <input type="text" id="node-input-name" placeholder="Name">
-    </div>
+  <div class="form-row">
+    <label for="node-input-name">
+      <i class="icon-tag"></i>
+      <span>Name</span>
+    </label>
+    <input type="text" id="node-input-name" placeholder="Name">
+  </div>
+  <div class="form-row">
+    <label for="node-input-local">
+      <i class="fa fa-globe"></i>
+      <span>Local RTP-MIDI Session</span>
+    </label>
+    <input type="text" id="node-input-local">
+  </div>
+  <div class="form-row">
+    <label for="node-input-remote">
+      <i class="fa fa-globe"></i>
+      <span>Remote RTP-MIDI Session</span>
+    </label>
+    <input type="text" id="node-input-remote" data-i18n="[placeholder]common.label.remote">
+  </div>
 </script>
 
 <script type="text/x-red" data-help-name="rtp-midi-mtc-in-node">
-    <p>Receives MTC timecode from a remote RTP-MIDI session.</p>
+  <p>Receives MTC timecode from a remote RTP-MIDI session.</p>
 </script>

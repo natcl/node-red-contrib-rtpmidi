@@ -1,0 +1,30 @@
+<script type="text/javascript">
+  RED.nodes.registerType('remote-rtpmidi-session',{
+      category: 'config',
+      defaults: {
+          host: {
+            value:"localhost",
+            required:true
+          },
+          port: {
+            value: 5004,
+            required:true,
+            validate:RED.validators.number()
+          }
+      },
+      label: function() {
+          return this.host + ":" + this.port;
+      }
+  });
+</script>
+
+<script type="text/x-red" data-template-name="remote-rtpmidi-session">
+  <div class="form-row">
+      <label for="node-config-input-host"><i class="icon-bookmark"></i> Remote Host IP</label>
+      <input type="text" id="node-config-input-host">
+  </div>
+  <div class="form-row">
+      <label for="node-config-input-port"><i class="icon-bookmark"></i> Port</label>
+      <input type="text" id="node-config-input-port">
+  </div>
+</script>

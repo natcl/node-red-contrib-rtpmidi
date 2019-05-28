@@ -3,16 +3,35 @@
   "version": "0.0.1",
   "description": "A Node-RED RTP-MIDI node",
   "dependencies": {
-      "node-rtpmidi": "natcl/node-rtpmidi"
+    "rtpmidi": "^0.1.9"
   },
   "repository": {
     "type": "git",
     "url": "https://github.com/natcl/node-red-contrib-rtpmidi.git"
   },
-  "keywords": ["node-red", "midi", "rtpmidi", "rtp"],
+  "keywords": [
+    "node-red",
+    "midi",
+    "rtpmidi",
+    "rtp"
+  ],
   "node-red": {
     "nodes": {
-      "template": "rtpmidi/rtpmidi.js"
+      "rtpmidi": "rtpmidi/rtpmidi.js",
+      "local-config": "rtpmidi/local-rtpmidi-session.js",
+      "remote-config": "rtpmidi/remote-rtpmidi-session.js"
     }
+  },
+  "devDependencies": {
+    "midi": "^0.9.5",
+    "mocha": "^6.1.4",
+    "node-red": "^0.20.5",
+    "node-red-node-test-helper": "^0.2.2",
+    "nyc": "^14.1.1",
+    "sinon": "^7.3.2"
+  },
+  "scripts": {
+    "test": "mocha --exit",
+    "test-with-coverage": "nyc --reporter=html npm test"
   }
 }
