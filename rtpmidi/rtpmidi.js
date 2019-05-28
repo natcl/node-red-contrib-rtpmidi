@@ -23,11 +23,13 @@ module.exports = function(RED) {
       const local = RED.nodes.getNode(config.local);
       const remote = RED.nodes.getNode(config.remote);
 
-      node._session = rtpmidi.manager.createSession({
-        localName: local.localName,
-        bonjourName: local.bonjourName,
-        port: parseInt(local.port) // When sent from UI, parsed as string
-      });
+      // Prevent error if node-red failed to reset session
+      if(!rtpmidi.manager.getSessionByPort(local.port))
+        node._session = rtpmidi.manager.createSession({
+          localName: local.localName,
+          bonjourName: local.bonjourName,
+          port: parseInt(local.port) // When sent from UI, parsed as string
+        });
 
       node._mtc = new rtpmidi.MTC();
       node._mtc.setSource(node._session);
@@ -62,10 +64,13 @@ module.exports = function(RED) {
         node.send({payload: {position: node._mtc.songPosition, time: node._mtc.getSMTPEString()}});
       });
 
-      node.on('close', function() {
-        node._session.end();
-        node.status({ fill:"blue", shape:"dot", text:"closed"});
+      node.on('close', function(done) {
+        rtpmidi.manager.reset(function() {
+          // When all sessions closed, proceed
+          done();
+        });
       });
+
     } catch (error) {
       node._err = error.message;
       node.status({ fill:"red", shape:"dot", text: "error"});

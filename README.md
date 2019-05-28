@@ -10,8 +10,8 @@ Make sure you installed follow the instructions stated in the [mDNS](https://www
 Eg. on Ubuntu 18.04:
 ````
 sudo apt-get install avahi-daemon avahi-discover libnss-mdns libavahi-compat-libdnssd-dev
-sudo service dbus start && service avahi-daemon start
-```` 
+sudo service dbus start && sudo service avahi-daemon start
+````
 
 ### Running them
 ``` bash
