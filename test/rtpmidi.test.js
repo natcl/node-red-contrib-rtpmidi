@@ -69,6 +69,32 @@ describe('Testing the basic node configuration', () => {
     });
   });
 
+  it('Should allow multiple nodes to connect to the same config and redeploy', (done) => {
+    const flow = [
+      { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
+      { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
+      { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1" },
+      { id: "n2", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1" }
+    ];
+
+
+    helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {
+      try {
+        //done();
+      } catch (error) {
+        done(error);
+      }
+    });
+    helper.unload();
+    helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {
+      try {
+        done();
+      } catch (error) {
+        done(error);
+      }
+    });
+  });
+
   it('Should send the right payload when mtc gets a change event', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
