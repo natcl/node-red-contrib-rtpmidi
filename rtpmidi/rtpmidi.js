@@ -1,13 +1,13 @@
 const rtpmidi = require('rtpmidi');
 
 var midiTypes = {
-  '8': 'noteoff',
-  '9': 'noteon',
-  '10': 'polyat',
-  '11': 'controlchange',
-  '12': 'programchange',
-  '13': 'channelat',
-  '14': 'pitchbend'
+  0x80: 'noteoff',
+  0x90: 'noteon',
+  0xA0: 'polyat',
+  0xB0: 'controlchange',
+  0xC0: 'programchange',
+  0xD0: 'channelat',
+  0xE0: 'pitchbend'
 };
 
 module.exports = function(RED) {
@@ -39,29 +39,41 @@ module.exports = function(RED) {
         node.status({ fill:"green", shape:"dot", text:"ready"});
       });
 
-      this._session.on('message', function(deltaTime, message) {
-        // For compliance with the node-red-contrib-midi package
-        const msg = {};
-        msg.midi = {};
+      const msg = {};
+      
+      // Intercepts MTL messages before MIDI parsing in the next scope
+      this._mtc.on('change', function() {
+        // Log the time code HH:MM:SS:FF
+        node.send({
+          mtc: {
+            position: node._mtc.songPosition, 
+            time: node._mtc.getSMTPEString()
+          },
+          payload: {}
+        });
+      });
 
-        if(Array.isArray(message)) {
-          // Midi message array to interpret
-          msg.midi.raw = message.slice();
-          msg.payload = message.splice(1);
-          msg.midi.channel = (message & 0xF) + 1;
-          msg.midi.type = midiTypes[message >> 4];
-          msg.midi.deltaTime = deltaTime;
-          msg.midi.data = msg.payload;
-          node.send(msg);
-        } else {
-          // Midi MTC received as object, will be processed by mtc on change
+      this._session.on('message', function(deltaTime, message) {
+        try {
+          // Skip undefined system exclusive messages not defined in type
+          if(!!message && midiTypes[message[0]]) {
+            // Midi message array to interpret
+            msg.midi = {};
+            msg.midi.raw = message.slice();
+            msg.payload = message;
+            msg.midi.channel = (message & 0xF) + 1;
+            msg.midi.type = midiTypes[message[0]];
+            msg.midi.deltaTime = deltaTime;
+            msg.midi.data = msg.payload;
+            node.send(msg);
+          } 
+        } catch (error) {
+          node._err = error.message;
+          node.error(error.message);
+          node.status({ fill:"red", shape:"dot", text: "error"});
         }
       });
 
-      this._mtc.on('change', function() {
-        // Log the time code HH:MM:SS:FF
-        node.send({payload: {position: node._mtc.songPosition, time: node._mtc.getSMTPEString()}});
-      });
 
       rtpmidi.manager.on('remoteSessionAdded', function(event) {
         console.log('A remote session was discovered');

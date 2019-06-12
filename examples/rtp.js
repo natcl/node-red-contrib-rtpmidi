@@ -10,7 +10,7 @@ const session = rtpmidi.manager.createSession({
 const input = new midi.input();
 const output = new midi.output();
 
-input.openPort(1);
+input.openPort(2);
 
 session.on('ready', function() {
   // Send a note
