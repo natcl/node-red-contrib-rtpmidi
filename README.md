@@ -9,6 +9,7 @@ As node-rtpmidi has an optionnal dependency to mDNS, node-mdns is also listed as
 Make sure you installed follow the instructions stated in the [mDNS](https://www.npmjs.com/package/mdns) package before proceading.
 Eg. on Ubuntu 18.04:
 ````
+npm install -g mdns
 sudo apt-get install avahi-daemon avahi-discover libnss-mdns libavahi-compat-libdnssd-dev
 sudo service dbus start && sudo service avahi-daemon start
 ````

@@ -28,7 +28,7 @@ describe('Testing the basic node configuration', () => {
     helper.stopServer(done);
   });
 
-  it('Should load the right properties', (done) => {
+  it('rtpmidi unit - Should load the right properties', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
@@ -69,7 +69,7 @@ describe('Testing the basic node configuration', () => {
     });
   });
 
-  it('Should allow multiple nodes to connect to the same config and redeploy', (done) => {
+  it('rtpmidi unit - Should allow multiple nodes to connect to the same config and redeploy', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
@@ -95,7 +95,7 @@ describe('Testing the basic node configuration', () => {
     });
   });
 
-  it('Should send the right payload when mtc gets a change event', (done) => {
+  it('rtpmidi unit - Should send the right payload when mtc gets a change event', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
@@ -139,7 +139,7 @@ describe('Testing the basic node configuration', () => {
     });
   });
 
-  it('Should send the right payload when session gets a message event', (done) => {
+  it('rtpmidi unit - Should send the right payload when session gets a message event', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
@@ -189,7 +189,7 @@ describe('Testing the basic node configuration', () => {
     });
   });
 
-  it('Should also send the right payload using the helper node inspector method', (done) => {
+  it('rtpmidi unit - Should also send the right payload using the helper node inspector method', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
@@ -239,7 +239,7 @@ describe('Testing the configuration nodes', () => {
     helper.stopServer(done);
   });
 
-  it('Should load the right values', (done) => {
+  it('rtpmidi unit - Should load the right values', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 }
