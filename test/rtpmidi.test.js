@@ -119,9 +119,14 @@ describe('Testing the basic node configuration', () => {
         n1._mtc.emit('change');
 
         const { lastArg } = n1.send.getCall(0);
-        lastArg.should.have.property('payload');
 
-        const { payload }  = lastArg;
+        const midiMessage = lastArg[0]; // first output
+        (!!midiMessage).should.be.false;
+
+        const mtcMessage = lastArg[1]; // second output
+        mtcMessage.should.have.property('payload');
+
+        const { payload }  = mtcMessage;
         payload.should.have.property('position');
         payload.should.have.property('time');
 
@@ -143,11 +148,12 @@ describe('Testing the basic node configuration', () => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
-      { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1", wires: [['n2']] },
+      { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1", wires: [['n2'], []] },
       { id: "n2", type: "helper" }
     ];
 
-    const midiMessage = [0x90, 0x0e, 0xff];
+    // Will be received as a buffer
+    const midiMessage = Buffer.from([0x90, 0x0e, 0xff]);
     const deltaTime = 0;
 
     helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {
@@ -158,7 +164,10 @@ describe('Testing the basic node configuration', () => {
         n1.should.not.have.property('_err');
 
         // Copy before sending as the node with call operations on the message instance
-        const midiMessageClone = midiMessage.slice(0);
+        const midiMessageClone = [];
+        for(var val of midiMessage.values()) {
+          midiMessageClone.push(val);
+        }
 
         n2.on('input', (msg) => {
           try {
@@ -166,7 +175,8 @@ describe('Testing the basic node configuration', () => {
             msg.should.have.property('payload');
 
             const { midi, payload } = msg;
-            const params = midiMessageClone.slice(1);
+            // Replicate node manipulation on midi params
+            const params = midiMessageClone.slice().splice(1);
 
             midi.should.have.property('raw', midiMessageClone);
             midi.should.have.property('deltaTime', deltaTime);
@@ -193,7 +203,7 @@ describe('Testing the basic node configuration', () => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
-      { id: "n1", type: "rtp-midi-mtc-in-node", local: 'l1', remote: 'r1', wires: [["n2"]] },
+      { id: "n1", type: "rtp-midi-mtc-in-node", local: 'l1', remote: 'r1', wires: [[],["n2"]] }, // Make sure to connect to right out
       { id: "n2", type: "helper" }
     ];
 
