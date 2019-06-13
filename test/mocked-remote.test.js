@@ -25,13 +25,13 @@ describe('Testing the basic node functionnality', () => {
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: BONJOURNAME, port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
       { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1" , wires: [['n2']] },
-      { id: "n2", type: "helper" } 
+      { id: "n2", type: "helper" }
     ];
 
     const mockedRemoteSession = rtpmidi.manager.createSession({
       localName: 'Session 1',
       bonjourName: 'Node RTPMidi',
-      port: 5006  
+      port: 5006
     });
 
     mockedRemoteSession.on('streamAdded', function(event) {
@@ -51,14 +51,14 @@ describe('Testing the basic node functionnality', () => {
   //     { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: BONJOURNAME, port: 5004 },
   //     { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
   //     { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1" , wires: [['n2']] },
-  //     { id: "n2", type: "helper" } 
+  //     { id: "n2", type: "helper" }
   //   ];
-    
+
   //   helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {
   //     const mockedRemoteSession = rtpmidi.manager.createSession({
   //       localName: 'Session 1',
   //       bonjourName: 'Node RTPMidi',
-  //       port: 5006  
+  //       port: 5006
   //     });
 
   //     mockedRemoteSession.on('streamAdded', function(event) {
@@ -76,20 +76,20 @@ describe('Testing the basic node functionnality', () => {
   //     { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: BONJOURNAME, port: 5004 },
   //     { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
   //     { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1" , wires: [['n2']] },
-  //     { id: "n2", type: "helper" } 
+  //     { id: "n2", type: "helper" }
   //   ];
 
   //   let mockedRemoteSession = rtpmidi.manager.createSession({
   //     localName: 'Session 1',
   //     bonjourName: 'Node RTPMidi',
-  //     port: 5006  
+  //     port: 5006
   //   });
   //   let connectionCounter = 0;
 
   //   mockedRemoteSession.on('streamAdded', function(event) {
   //     if(connectionCounter > 0)
   //       done();
-      
+
   //     connectionCounter++;
   //     // End remote session and restart
   //     mockedRemoteSession.end(() => { mockedRemoteSession.start() });
@@ -97,21 +97,23 @@ describe('Testing the basic node functionnality', () => {
 
   //   // Will load nodes and start the streams
   //   helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {});
-    
+
   // });
 
-  it('rtpmidi functionnal - ', (done) => {
+  it('rtpmidi functionnal - ', function(done) {
+    this.timeout(10000);
+
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
-      { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1" , wires: [['n2']] },
-      { id: "n2", type: "helper" } 
+      { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1" , wires: [['n2'], []] },
+      { id: "n2", type: "helper" }
     ];
 
     const mockedRemoteSession = rtpmidi.manager.createSession({
       localName: 'Session 1',
       bonjourName: 'Node RTPMidi',
-      port: 5006  
+      port: 5006
     });
 
     const input = new midi.input();
@@ -119,7 +121,6 @@ describe('Testing the basic node functionnality', () => {
 
     input.openVirtualPort('Virtual test port');
     input.on('message', function(deltaTime, message) {
-      console.log('INPUT GOT MESSAGE', message)
       mockedRemoteSession.sendMessage(message);
     });
     input.ignoreTypes(false, false, false);
@@ -128,13 +129,18 @@ describe('Testing the basic node functionnality', () => {
       helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {
         const n1 = helper.getNode('n1');
         const n2 = helper.getNode('n2');
-        mockedRemoteSession.on('streamAdded', function(event) {
-          n2.on('input', (msg) => {
-            console.log(msg)
-            input.closePort();
-            done();
-          });
-          input.emit('message', mtc.getSMTPEString(), [0xf1]);
+
+        n2.on('input', (msg) => {
+          console.log(msg)
+          input.closePort();
+          done();
+        });
+
+        mockedRemoteSession.on('streamAdded', () => {
+          // Send until received
+          setInterval(()=>{
+            input.emit('message', mtc.getSMTPEString(), [0x90, 127, 127]);
+          },100);
         });
       });
     });

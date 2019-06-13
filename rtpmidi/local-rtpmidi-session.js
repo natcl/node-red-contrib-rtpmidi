@@ -24,19 +24,6 @@ module.exports = function(RED) {
       var node = this;
       this.on('close', function(done) {
         rtpmidi.manager.reset(function() {
-         /*  // Close everything properly
-          console.log('THERE SHOULD BE NO SESSIONS NOW', rtpmidi.manager.getSessions())
-          const sessions = rtpmidi.manager.getSessions();
-          function next() {
-            if(rtpmidi.manager.getSessions().length != 0) {
-              console.log('Still not cleared')
-
-              next();
-            } else {
-              done();
-            }
-          }
-          next(); */
           done();
         });
       });
