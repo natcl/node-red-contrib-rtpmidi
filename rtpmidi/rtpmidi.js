@@ -46,6 +46,11 @@ module.exports = function(RED) {
         }
       });
 
+      this._session.on('error', function(err) {
+        console.error(err);
+        this.status({ fill:"red", shape:"dot", text: "error"});
+      });
+
       // Intercepts MTL messages before MIDI parsing in the next scope
       this._mtc.on('change', () => {
         // Send to the second output
