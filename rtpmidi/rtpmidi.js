@@ -37,8 +37,13 @@ module.exports = function(RED) {
       };
 
       this._session.on('ready', () => {
-        this._session.connect(this._remote);
-        this.status({ fill:"green", shape:"dot", text:"ready"});
+        try {
+          this._session.connect(this._remote);
+          this.status({ fill:"green", shape:"dot", text:"ready"});
+        } catch (error) {
+          this.warn(error);
+          this.status({ fill:"red", shape:"dot", text:"error"});
+        }
       });
 
       // Intercepts MTL messages before MIDI parsing in the next scope
