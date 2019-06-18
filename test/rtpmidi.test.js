@@ -1,6 +1,7 @@
 const helper = require("node-red-node-test-helper");
 const rtpmidi = require('rtpmidi');
 const sinon = require('sinon');
+const os = require('os');
 
 const rtpMIDINode = require('../rtpmidi/rtpmidi');
 const localConfigNode = require('../rtpmidi/local-rtpmidi-session');
@@ -56,8 +57,8 @@ describe('Testing the basic node configuration', () => {
         _mtc.should.be.an.instanceOf(rtpmidi.MTC);
 
         _session.should.be.an.instanceOf(rtpmidi.Session);
-        _session.should.have.property('localName', l1.localName);
-        _session.should.have.property('bonjourName', l1.bonjourName);
+        _session.should.have.property('localName', `${os.hostname()} ${l1.localName}`);
+        _session.should.have.property('bonjourName', `${os.hostname()} ${l1.bonjourName}`);
         _session.should.have.property('port', l1.port);
         _session.should.have.property('readyState', 0);
         _session.should.have.property('ipVersion', 4);

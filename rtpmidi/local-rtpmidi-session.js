@@ -1,4 +1,5 @@
 const rtpmidi = require('rtpmidi');
+const os = require('os');
 
 module.exports = function(RED) {
 
@@ -11,8 +12,8 @@ module.exports = function(RED) {
     try {
 
       this._session = rtpmidi.manager.createSession({
-        localName: this.localName,
-        bonjourName: this.bonjourName,
+        localName: `${os.hostname()} ${this.localName}`,
+        bonjourName: `${os.hostname()} ${this.bonjourName}`,
         port: parseInt(this.port) // When sent from UI, parsed as string
       });
 
