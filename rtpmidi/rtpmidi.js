@@ -65,6 +65,7 @@ module.exports = function(RED) {
       let messageArray = [];
       let msg = {};
       let midi = {};
+      let channel = 0;
       this._session.on('message', (deltaTime, message) => {
 
         try {
@@ -74,13 +75,16 @@ module.exports = function(RED) {
             }
           }
 
-          midi.type = midiTypes[messageArray[0]];
+          // Keep LSB for channel
+          channel = messageArray[0] & 0xF;
+          // Keep MSB for midi message type
+          midi.type = midiTypes[messageArray[0] & 0xF0];
           // Skip undefined system exclusive messages not defined in type 0xF?
           if(!!messageArray && !!midi.type) {
             // Midi messageArray array to interpret
             midi.raw = messageArray.slice(); // lazy copy
             midi.data = messageArray.splice(1);
-            midi.channel = (messageArray & 0xF) + 1;
+            midi.channel = channel + 1;
             midi.deltaTime = deltaTime;
             msg.midi = midi
 
