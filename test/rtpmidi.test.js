@@ -3,6 +3,8 @@ const rtpmidi = require('rtpmidi');
 const sinon = require('sinon');
 const os = require('os');
 
+rtpmidi.log.level = 4; // Log everything
+
 const rtpMIDINode = require('../rtpmidi/rtpmidi');
 const localConfigNode = require('../rtpmidi/local-rtpmidi-session');
 const remoteConfigNode = require('../rtpmidi/remote-rtpmidi-session');

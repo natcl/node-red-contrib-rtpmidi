@@ -4,6 +4,8 @@ const midi = require('midi');
 const os = require('os');
 const hostname = os.hostname();
 
+rtpmidi.log.level = 4; // Log everything
+
 const rtpMIDINode = require('../rtpmidi/rtpmidi');
 const localConfigNode = require('../rtpmidi/local-rtpmidi-session');
 const remoteConfigNode = require('../rtpmidi/remote-rtpmidi-session');
@@ -68,7 +70,7 @@ describe('Testing the basic node functionnality', () => {
 
     input.openVirtualPort('Virtual test port');
     input.on('message', function(deltaTime, message) {
-      mockedRemoteSession.sendMessage(message);
+      mockedRemoteSession.sendMessage(deltaTime, message);
     });
     input.ignoreTypes(false, false, false);
 
@@ -78,7 +80,6 @@ describe('Testing the basic node functionnality', () => {
         const n2 = helper.getNode('n2');
 
         n2.on('input', (msg) => {
-          console.log(msg)
           input.closePort();
           done();
         });
@@ -86,7 +87,7 @@ describe('Testing the basic node functionnality', () => {
         mockedRemoteSession.on('streamAdded', () => {
           // Send until received
           setInterval(()=>{
-            input.emit('message', mtc.getSMTPEString(), Buffer.from([0x90, 127, 127]));
+            input.emit('message', mtc.getSMTPEString(), [0x90, 127, 127]);
           },100);
         });
       });
