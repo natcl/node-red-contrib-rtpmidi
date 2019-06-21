@@ -47,7 +47,7 @@ describe('Testing the basic node functionnality', () => {
     helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {});
   });
 
-  it('rtpmidi functionnal - ', function(done) {
+  it('rtpmidi functionnal - Sending midi message', function(done) {
     this.timeout(10000);
 
     const flow = [
@@ -86,7 +86,7 @@ describe('Testing the basic node functionnality', () => {
         mockedRemoteSession.on('streamAdded', () => {
           // Send until received
           setInterval(()=>{
-            input.emit('message', mtc.getSMTPEString(), [0x90, 127, 127]);
+            input.emit('message', mtc.getSMTPEString(), Buffer.from([0x90, 127, 127]));
           },100);
         });
       });

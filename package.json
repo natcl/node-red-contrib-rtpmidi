@@ -3,7 +3,8 @@
   "version": "0.0.1",
   "description": "A Node-RED RTP-MIDI node",
   "dependencies": {
-    "rtpmidi": "^0.1.9"
+    "rtpmidi": "github:renaudfv/node-rtpmidi#945ff96755277b6564676669ae23fb7146b135a3",
+    "midi": "*"
   },
   "repository": {
     "type": "git",
