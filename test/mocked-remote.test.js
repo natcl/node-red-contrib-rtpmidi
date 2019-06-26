@@ -4,7 +4,7 @@ const midi = require('midi');
 const os = require('os');
 const hostname = os.hostname();
 
-rtpmidi.log.level = 4; // Log everything
+rtpmidi.logger.level = 'warn'; // Log everything
 
 const rtpMIDINode = require('../rtpmidi/rtpmidi');
 const localConfigNode = require('../rtpmidi/local-rtpmidi-session');

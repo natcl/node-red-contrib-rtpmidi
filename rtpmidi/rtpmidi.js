@@ -29,6 +29,7 @@ module.exports = function(RED) {
       this._session = _session;
 
       this._mtc = new rtpmidi.MTC();
+      // Listens to session on message to catch 0xf1 and 0xf2
       this._mtc.setSource(this._session);
 
       this._remote = {
@@ -46,7 +47,7 @@ module.exports = function(RED) {
         }
       });
 
-      this._session.on('error', function(err) {
+      this._session.on('error', (err) => {
         console.error(err);
         this.status({ fill:"red", shape:"dot", text: "error"});
       });
@@ -106,20 +107,9 @@ module.exports = function(RED) {
         }
       });
 
-      rtpmidi.manager.on('remoteSessionAdded', (event) => {
-        console.log('A remote session was discovered');
-        console.log('Connecting...');
-        this._session.connect(event.remoteSession);
-      });
-
-      rtpmidi.manager.on('remoteSessionRemoved', (event) => {
-        console.log('A remote session disappered');
-      });
-
-
       // Close all sessions, including remote ones
       this.on('close', (done) => {
-        this._session = undefined;
+        // Closure handled
         done();
       });
 

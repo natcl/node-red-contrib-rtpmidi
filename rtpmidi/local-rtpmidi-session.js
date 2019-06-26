@@ -19,9 +19,7 @@ module.exports = function(RED) {
 
       this._session.on('error', function(err) {
         console.error(err);
-        this.status({ fill:"red", shape:"dot", text: "error"});
       });
-
 
       var node = this;
       this.on('close', function(done) {
@@ -35,9 +33,7 @@ module.exports = function(RED) {
       });
     } catch (error) {
       console.log(error);
-      this.status({ fill:"red", shape:"dot", text: "error"});
     }
-
   }
 
   RED.nodes.registerType("local-rtpmidi-session", LocalRTPMIDISession);
