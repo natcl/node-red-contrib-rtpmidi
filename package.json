@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "A Node-RED RTP-MIDI node",
   "dependencies": {
-    "rtpmidi": "github:renaudfv/node-rtpmidi"
+    "rtpmidi": "1.0.0"
   },
   "repository": {
     "type": "git",
@@ -23,12 +23,13 @@
     }
   },
   "devDependencies": {
-    "midi": "^0.9.5",
+    "midi": "^1.0.0",
     "mocha": "^6.1.4",
-    "node-red": "^0.20.5",
+    "node-red": "1.0.6",
     "node-red-node-test-helper": "^0.2.2",
     "nyc": "^14.1.1",
-    "sinon": "^7.3.2"
+    "sinon": "^7.3.2",
+    "standard": "17.0.0"
   },
   "scripts": {
     "test": "mocha --exit",

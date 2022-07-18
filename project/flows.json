@@ -5,15 +5,35 @@
         "label": "Flow 1"
     },
     {
+        "id": "eb8f4087.b7301",
+        "type": "local-rtpmidi-session",
+        "z": "",
+        "localName": "Node-RED RTP-MIDI session",
+        "bonjourName": "Node-RED RTP-MIDI session",
+        "port": "5008"
+    },
+    {
+        "id": "8b9bacf8.e6cc48",
+        "type": "remote-rtpmidi-session",
+        "z": "",
+        "host": "localhost",
+        "port": "5004"
+    },
+    {
         "id": "792af955.1a707",
         "type": "rtp-midi-mtc-in-node",
         "z": "b4a23bd2.4e1b08",
+        "local": "eb8f4087.b7301",
+        "remote": "8b9bacf8.e6cc48",
         "name": "",
-        "x": 300,
+        "x": 310,
         "y": 100,
         "wires": [
             [
                 "63b27a9c.1fca44"
+            ],
+            [
+                "122d8bcf.45f53c"
             ]
         ]
     },
@@ -22,11 +42,23 @@
         "type": "debug",
         "z": "b4a23bd2.4e1b08",
         "name": "",
-        "active": false,
+        "active": true,
         "console": "false",
         "complete": "false",
-        "x": 590,
-        "y": 160,
+        "x": 550,
+        "y": 100,
+        "wires": []
+    },
+    {
+        "id": "122d8bcf.45f53c",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "active": true,
+        "console": "false",
+        "complete": "false",
+        "x": 550,
+        "y": 180,
         "wires": []
     }
 ]

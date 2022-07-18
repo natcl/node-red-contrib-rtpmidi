@@ -12,7 +12,7 @@ const remoteConfigNode = require('../rtpmidi/remote-rtpmidi-session');
 
 helper.init(require.resolve('node-red'));
 
-describe('Testing the basic node functionnality', () => {
+describe('Testing the basic node functionality', () => {
 
   beforeEach((done) => {
     helper.startServer(done);
@@ -23,7 +23,7 @@ describe('Testing the basic node functionnality', () => {
     helper.stopServer(done);
   });
 
-  it('rtpmidi functionnal - Should add the node stream when session created first', (done) => {
+  it('rtpmidi functional - Should add the node stream when session created first', (done) => {
     const BONJOURNAME = "TEST BONJOUR NAME";
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: BONJOURNAME, port: 5004 },
@@ -49,7 +49,7 @@ describe('Testing the basic node functionnality', () => {
     helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {});
   });
 
-  it('rtpmidi functionnal - Sending midi message', function(done) {
+  it('rtpmidi functional - Sending midi message', function(done) {
     this.timeout(10000);
 
     const flow = [
