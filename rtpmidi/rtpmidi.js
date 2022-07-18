@@ -1,13 +1,13 @@
 const rtpmidi = require('rtpmidi');
 
-var midiTypes = {
-  '8': 'noteoff',
-  '9': 'noteon',
-  '10': 'polyat',
-  '11': 'controlchange',
-  '12': 'programchange',
-  '13': 'channelat',
-  '14': 'pitchbend'
+const midiTypes = {
+  0x80: 'noteoff',
+  0x90: 'noteon',
+  0xA0: 'polyat',
+  0xB0: 'controlchange',
+  0xC0: 'programchange',
+  0xD0: 'channelat',
+  0xE0: 'pitchbend'
 };
 
 module.exports = function(RED) {
@@ -15,56 +15,101 @@ module.exports = function(RED) {
     RED.nodes.createNode(this, config);
 
     try {
-      if(!config.local) throw new Error("ERROR: Missing local session config node");
-      if(!config.remote) throw new Error("ERROR: Missing local session config node");
+      const { local, remote } = config;
 
-      const local = RED.nodes.getNode(config.local);
-      const remote = RED.nodes.getNode(config.remote);
+      if(!local) throw new Error("ERROR: Missing local session config node");
+      if(!remote) throw new Error("ERROR: Missing local session config node");
 
-      this._session = local._session;
+      const localSession = RED.nodes.getNode(local);
+      const remoteConfig = RED.nodes.getNode(remote);
+
+      const { _session } = localSession;
+      const { host, port } = remoteConfig;
+
+      this._session = _session;
 
       this._mtc = new rtpmidi.MTC();
+      // Listens to session on message to catch 0xf1 and 0xf2
       this._mtc.setSource(this._session);
 
       this._remote = {
-        address: remote.host,
-        port: parseInt(remote.port) // When sent from UI, parsed as string
+        address: host,
+        port: parseInt(port) // When sent from UI, parsed as string
       };
 
-      // To use in sub-callbacks
-      var node = this;
-
-      this._session.on('ready', function() {
-        node._session.connect(node._remote);
-        node.status({ fill:"green", shape:"dot", text:"ready"});
-      });
-
-      this._session.on('message', function(deltaTime, message) {
-        // For compliance with the node-red-contrib-midi package
-        const msg = {};
-        msg.midi = {};
-
-        if(!!message) {
-          msg.midi.raw = message.slice();
-          msg.payload = message.splice(1);
-          msg.midi.channel = (message & 0xF) + 1;
-          msg.midi.type = midiTypes[message >> 4];
+      this._session.on('ready', () => {
+        try {
+          this._session.connect(this._remote);
+          this.status({ fill:"green", shape:"dot", text:"ready"});
+        } catch (error) {
+          this.warn(error);
+          this.status({ fill:"red", shape:"dot", text:"error"});
         }
-
-        msg.midi.deltaTime = deltaTime;
-        msg.midi.data = msg.payload;
-
-        node.send(msg);
       });
 
-      this._mtc.on('change', function() {
-        // Log the time code HH:MM:SS:FF
-        node.send({payload: {position: node._mtc.songPosition, time: node._mtc.getSMTPEString()}});
+      this._session.on('error', (err) => {
+        console.error(err);
+        this.status({ fill:"red", shape:"dot", text: "error"});
+      });
+
+      // Intercepts MTL messages before MIDI parsing in the next scope
+      this._mtc.on('change', () => {
+        // Send to the second output
+        this.send([null, {
+          payload: {
+            position: this._mtc.songPosition,
+            time: this._mtc.getSMTPEString()
+          }
+        }]);
+      });
+
+      let messageArray = [];
+      let msg = {};
+      let midi = {};
+      let channel = 0;
+      this._session.on('message', (deltaTime, message) => {
+
+        try {
+          if(Buffer.isBuffer(message)) {
+            for(var val of message.values()) {
+                messageArray.push(val);
+            }
+          }
+
+          // Keep LSB for channel
+          channel = messageArray[0] & 0xF;
+          // Keep MSB for midi message type
+          midi.type = midiTypes[messageArray[0] & 0xF0];
+          // Skip undefined system exclusive messages not defined in type 0xF?
+          if(!!messageArray && !!midi.type) {
+            // Midi messageArray array to interpret
+            midi.raw = messageArray.slice(); // lazy copy
+            midi.data = messageArray.splice(1);
+            midi.channel = channel + 1;
+            midi.deltaTime = deltaTime;
+            msg.midi = midi
+
+            msg.payload = midi.data;
+
+            // Send to the first output
+            this.send([msg, null]);
+          }
+
+          messageArray = [];
+          msg = {};
+          midi = {};
+
+        } catch (error) {
+          this._err = error.message;
+          this.error(error.message);
+          console.error(error)
+          this.status({ fill:"red", shape:"dot", text: "error"});
+        }
       });
 
       // Close all sessions, including remote ones
-      this.on('close', function(done) {
-        node._session = undefined;
+      this.on('close', (done) => {
+        // Closure handled
         done();
       });
 

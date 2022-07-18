@@ -1,6 +1,9 @@
 const helper = require("node-red-node-test-helper");
 const rtpmidi = require('rtpmidi');
 const sinon = require('sinon');
+const os = require('os');
+
+rtpmidi.logger.level = 'warn'; // Log everything
 
 const rtpMIDINode = require('../rtpmidi/rtpmidi');
 const localConfigNode = require('../rtpmidi/local-rtpmidi-session');
@@ -28,7 +31,7 @@ describe('Testing the basic node configuration', () => {
     helper.stopServer(done);
   });
 
-  it('Should load the right properties', (done) => {
+  it('rtpmidi unit - Should load the right properties', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
@@ -56,8 +59,8 @@ describe('Testing the basic node configuration', () => {
         _mtc.should.be.an.instanceOf(rtpmidi.MTC);
 
         _session.should.be.an.instanceOf(rtpmidi.Session);
-        _session.should.have.property('localName', l1.localName);
-        _session.should.have.property('bonjourName', l1.bonjourName);
+        _session.should.have.property('localName', `${os.hostname()} ${l1.localName}`);
+        _session.should.have.property('bonjourName', `${os.hostname()} ${l1.bonjourName}`);
         _session.should.have.property('port', l1.port);
         _session.should.have.property('readyState', 0);
         _session.should.have.property('ipVersion', 4);
@@ -69,7 +72,7 @@ describe('Testing the basic node configuration', () => {
     });
   });
 
-  it('Should allow multiple nodes to connect to the same config and redeploy', (done) => {
+  it('rtpmidi unit - Should allow multiple nodes to connect to the same config and redeploy', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
@@ -95,7 +98,7 @@ describe('Testing the basic node configuration', () => {
     });
   });
 
-  it('Should send the right payload when mtc gets a change event', (done) => {
+  it('rtpmidi unit - Should send the right payload when mtc gets a change event', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
@@ -119,9 +122,14 @@ describe('Testing the basic node configuration', () => {
         n1._mtc.emit('change');
 
         const { lastArg } = n1.send.getCall(0);
-        lastArg.should.have.property('payload');
 
-        const { payload }  = lastArg;
+        const midiMessage = lastArg[0]; // first output
+        (!!midiMessage).should.be.false;
+
+        const mtcMessage = lastArg[1]; // second output
+        mtcMessage.should.have.property('payload');
+
+        const { payload }  = mtcMessage;
         payload.should.have.property('position');
         payload.should.have.property('time');
 
@@ -139,15 +147,16 @@ describe('Testing the basic node configuration', () => {
     });
   });
 
-  it('Should send the right payload when session gets a message event', (done) => {
+  it('rtpmidi unit - Should send the right payload when session gets a message event', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
-      { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1", wires: [['n2']] },
+      { id: "n1", type: "rtp-midi-mtc-in-node", name: "test-load-node", local: "l1", remote: "r1", wires: [['n2'], []] },
       { id: "n2", type: "helper" }
     ];
 
-    const midiMessage = [0x90, 0x0e, 0xff];
+    // Will be received as a buffer
+    const midiMessage = Buffer.from([0x90, 0x0e, 0xff]);
     const deltaTime = 0;
 
     helper.load([rtpMIDINode, localConfigNode, remoteConfigNode], flow, () => {
@@ -158,7 +167,10 @@ describe('Testing the basic node configuration', () => {
         n1.should.not.have.property('_err');
 
         // Copy before sending as the node with call operations on the message instance
-        const midiMessageClone = midiMessage.slice(0);
+        const midiMessageClone = [];
+        for(var val of midiMessage.values()) {
+          midiMessageClone.push(val);
+        }
 
         n2.on('input', (msg) => {
           try {
@@ -166,7 +178,8 @@ describe('Testing the basic node configuration', () => {
             msg.should.have.property('payload');
 
             const { midi, payload } = msg;
-            const params = midiMessageClone.slice(1);
+            // Replicate node manipulation on midi params
+            const params = midiMessageClone.slice().splice(1);
 
             midi.should.have.property('raw', midiMessageClone);
             midi.should.have.property('deltaTime', deltaTime);
@@ -189,11 +202,11 @@ describe('Testing the basic node configuration', () => {
     });
   });
 
-  it('Should also send the right payload using the helper node inspector method', (done) => {
+  it('rtpmidi unit - Should also send the right payload using the helper node inspector method', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 },
-      { id: "n1", type: "rtp-midi-mtc-in-node", local: 'l1', remote: 'r1', wires: [["n2"]] },
+      { id: "n1", type: "rtp-midi-mtc-in-node", local: 'l1', remote: 'r1', wires: [[],["n2"]] }, // Make sure to connect to right out
       { id: "n2", type: "helper" }
     ];
 
@@ -239,7 +252,7 @@ describe('Testing the configuration nodes', () => {
     helper.stopServer(done);
   });
 
-  it('Should load the right values', (done) => {
+  it('rtpmidi unit - Should load the right values', (done) => {
     const flow = [
       { id: "l1", type: "local-rtpmidi-session", localName: "TEST LOCAL NAME", bonjourName: "TEST BONJOUR NAME", port: 5004 },
       { id: "r1", type: "remote-rtpmidi-session", host: "127.0.0.1", port: 5006 }

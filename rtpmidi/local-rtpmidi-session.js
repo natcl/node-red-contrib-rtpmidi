@@ -1,4 +1,5 @@
 const rtpmidi = require('rtpmidi');
+const os = require('os');
 
 module.exports = function(RED) {
 
@@ -11,8 +12,8 @@ module.exports = function(RED) {
     try {
 
       this._session = rtpmidi.manager.createSession({
-        localName: this.localName,
-        bonjourName: this.bonjourName,
+        localName: `${os.hostname()} ${this.localName}`,
+        bonjourName: `${os.hostname()} ${this.bonjourName}`,
         port: parseInt(this.port) // When sent from UI, parsed as string
       });
 
@@ -20,31 +21,19 @@ module.exports = function(RED) {
         console.error(err);
       });
 
-
       var node = this;
       this.on('close', function(done) {
-        rtpmidi.manager.reset(function() {
-         /*  // Close everything properly
-          console.log('THERE SHOULD BE NO SESSIONS NOW', rtpmidi.manager.getSessions())
-          const sessions = rtpmidi.manager.getSessions();
-          function next() {
-            if(rtpmidi.manager.getSessions().length != 0) {
-              console.log('Still not cleared')
+        try {
+          rtpmidi.manager.reset(done);
+        } catch (error) {
+          console.error(error);
+          done(error)
+        }
 
-              next();
-            } else {
-              done();
-            }
-          }
-          next(); */
-          done();
-        });
       });
     } catch (error) {
       console.log(error);
-      this.status({ fill:"red", shape:"dot", text: "error"});
     }
-
   }
 
   RED.nodes.registerType("local-rtpmidi-session", LocalRTPMIDISession);
