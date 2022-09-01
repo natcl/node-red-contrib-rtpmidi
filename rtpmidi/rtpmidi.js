@@ -62,8 +62,47 @@ module.exports = function (RED) {
         this.status({ fill: 'red', shape: 'dot', text: 'error' })
       })
 
+      //CHECK IF VALUE CHANGE OVERTIME TO FORCE RECONNECTION WITH THE REMOTE SESSION  
+      // reconnection Variables
+      let streamID = undefined
+      let remoteStream = null
+      let SMTPEString =  ""
+      let lastSMTPEString =  ""
+
+      // Stream data from remote session. Use event streamAdded to get the stream unique SSRC
+      this._session.on('streamAdded', (event) => {
+          const { stream } = event;
+          streamID =  stream.ssrc
+        });
+
+      // Check if we still get data from stream every 5 secs, if not restart connection.
+      function CheckRemoteConnection(session, remote){
+        try {
+          if(SMTPEString == lastSMTPEString){
+            if(streamID !=  undefined){
+              remoteStream = session.getStream(streamID);
+            }
+            if(remoteStream != null){
+              console.log(`deleting stream: ${remoteStream.name}`)
+              session.removeStream(remoteStream)
+            }
+            session.connect(remote)
+          }else{
+            lastSMTPEString = SMTPEString
+          }
+          setTimeout(CheckRemoteConnection, 5000, session, remote);
+          } catch (error) {
+              console.warn(error)
+          }
+        }
+      
+      setTimeout(CheckRemoteConnection, 10000, this._session, this._remote); 
+
       // Intercepts MTL messages before MIDI parsing in the next scope
       this._mtc.on('change', () => {
+        // Set SMTPEString to mtc.getSMTPEString() for CheckRemoteConnection()
+        SMTPEString = this._mtc.getSMTPEString()
+
         // Send to the second output
         this.send([null, {
           payload: {

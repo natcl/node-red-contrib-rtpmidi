@@ -16,7 +16,7 @@
         "id": "8b9bacf8.e6cc48",
         "type": "remote-rtpmidi-session",
         "z": "",
-        "host": "localhost",
+        "host": "10.10.90.253",
         "port": "5004"
     },
     {
@@ -26,8 +26,8 @@
         "local": "eb8f4087.b7301",
         "remote": "8b9bacf8.e6cc48",
         "name": "",
-        "x": 310,
-        "y": 100,
+        "x": 110,
+        "y": 120,
         "wires": [
             [
                 "63b27a9c.1fca44"
@@ -43,9 +43,12 @@
         "z": "b4a23bd2.4e1b08",
         "name": "",
         "active": true,
-        "console": "false",
-        "complete": "false",
-        "x": 550,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "true",
+        "targetType": "full",
+        "x": 270,
         "y": 100,
         "wires": []
     },
@@ -55,10 +58,13 @@
         "z": "b4a23bd2.4e1b08",
         "name": "",
         "active": true,
-        "console": "false",
-        "complete": "false",
-        "x": 550,
-        "y": 180,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload.time",
+        "targetType": "msg",
+        "x": 310,
+        "y": 140,
         "wires": []
     }
 ]
