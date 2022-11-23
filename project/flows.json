@@ -10,7 +10,7 @@
         "z": "",
         "localName": "Node-RED RTP-MIDI session",
         "bonjourName": "Node-RED RTP-MIDI session",
-        "port": "5008"
+        "port": "5004"
     },
     {
         "id": "8b9bacf8.e6cc48",
@@ -27,11 +27,9 @@
         "remote": "8b9bacf8.e6cc48",
         "name": "",
         "x": 110,
-        "y": 120,
+        "y": 140,
         "wires": [
-            [
-                "63b27a9c.1fca44"
-            ],
+            [],
             [
                 "122d8bcf.45f53c"
             ]
@@ -49,7 +47,7 @@
         "complete": "true",
         "targetType": "full",
         "x": 270,
-        "y": 100,
+        "y": 60,
         "wires": []
     },
     {
@@ -66,5 +64,66 @@
         "x": 310,
         "y": 140,
         "wires": []
+    },
+    {
+        "id": "88bfffb1.39cb8",
+        "type": "inject",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 90,
+        "y": 320,
+        "wires": [
+            [
+                "bc551315.45117"
+            ]
+        ]
+    },
+    {
+        "id": "db936965.066708",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "false",
+        "x": 310,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "bc551315.45117",
+        "type": "change",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "CheckRemoteConnection",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 320,
+        "y": 320,
+        "wires": [
+            [
+                "db936965.066708"
+            ]
+        ]
     }
 ]

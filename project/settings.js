@@ -18,6 +18,8 @@
 // to make it available:
 //var fs = require("fs");
 
+//process.env.RTPMIDI_DISABLE = false;
+
 module.exports = {
     // the tcp port that the Node-RED web server is listening on
     uiPort: 1880,
