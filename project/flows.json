@@ -10,13 +10,13 @@
         "z": "",
         "localName": "Node-RED RTP-MIDI session",
         "bonjourName": "Node-RED RTP-MIDI session",
-        "port": "5008"
+        "port": "5004"
     },
     {
         "id": "8b9bacf8.e6cc48",
         "type": "remote-rtpmidi-session",
         "z": "",
-        "host": "localhost",
+        "host": "10.10.90.253",
         "port": "5004"
     },
     {
@@ -26,28 +26,14 @@
         "local": "eb8f4087.b7301",
         "remote": "8b9bacf8.e6cc48",
         "name": "",
-        "x": 310,
-        "y": 100,
+        "x": 110,
+        "y": 260,
         "wires": [
-            [
-                "63b27a9c.1fca44"
-            ],
+            [],
             [
                 "122d8bcf.45f53c"
             ]
         ]
-    },
-    {
-        "id": "63b27a9c.1fca44",
-        "type": "debug",
-        "z": "b4a23bd2.4e1b08",
-        "name": "",
-        "active": true,
-        "console": "false",
-        "complete": "false",
-        "x": 550,
-        "y": 100,
-        "wires": []
     },
     {
         "id": "122d8bcf.45f53c",
@@ -55,10 +41,110 @@
         "z": "b4a23bd2.4e1b08",
         "name": "",
         "active": true,
-        "console": "false",
-        "complete": "false",
-        "x": 550,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload.time",
+        "targetType": "msg",
+        "x": 310,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "88bfffb1.39cb8",
+        "type": "inject",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "topic": "",
+        "payload": "true",
+        "payloadType": "bool",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 110,
         "y": 180,
+        "wires": [
+            [
+                "bc551315.45117"
+            ]
+        ]
+    },
+    {
+        "id": "db936965.066708",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "Global.CheckRemoteConnection",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 660,
+        "y": 180,
+        "wires": []
+    },
+    {
+        "id": "bc551315.45117",
+        "type": "change",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "rules": [
+            {
+                "t": "set",
+                "p": "CheckRemoteConnection",
+                "pt": "global",
+                "to": "payload",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 340,
+        "y": 180,
+        "wires": [
+            [
+                "db936965.066708"
+            ]
+        ]
+    },
+    {
+        "id": "5ba384cf.d078ac",
+        "type": "inject",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "topic": "",
+        "payload": "RTPMIDI_DISABLE",
+        "payloadType": "env",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 110,
+        "y": 100,
+        "wires": [
+            [
+                "67a32a28.fffe24"
+            ]
+        ]
+    },
+    {
+        "id": "67a32a28.fffe24",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "ENV - RTPMIDI_DISABLE",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 320,
+        "y": 100,
         "wires": []
     }
 ]

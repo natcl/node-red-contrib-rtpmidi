@@ -39,6 +39,7 @@ module.exports = function (RED) {
       this._session = _session
 
       this._mtc = new rtpmidi.MTC()
+
       // Listens to session on message to catch 0xf1 and 0xf2
       this._mtc.setSource(this._session)
 
@@ -62,8 +63,49 @@ module.exports = function (RED) {
         this.status({ fill: 'red', shape: 'dot', text: 'error' })
       })
 
+      //CHECK IF VALUE CHANGE OVERTIME TO FORCE RECONNECTION WITH THE REMOTE SESSION  
+      // reconnection Variables
+      let globalContext = this.context().global;
+      let streamID = undefined
+      let remoteStream = null
+      let SMTPEString =  1
+      let lastSMTPEString =  0
+
+      // Stream data from remote session. Use event streamAdded to get the stream unique SSRC
+      this._session.on('streamAdded', (event) => {
+          const { stream } = event;
+          streamID =  stream.ssrc
+        });
+
+      // Check if we still get data from stream every 5 secs, if not restart connection.
+      function CheckRemoteConnection(session, remote){
+        if(!globalContext.get("CheckRemoteConnection")){
+          return
+        }else{
+          try {
+            if(SMTPEString == lastSMTPEString){
+              if(streamID !=  undefined){
+                remoteStream = session.getStream(streamID);
+              }
+              if(remoteStream != null){
+                remoteStream.end()
+              }
+              session.connect(remote)
+            }else{
+              lastSMTPEString = SMTPEString
+            }
+          }catch (error) {
+                console.warn(error)
+          }
+        }
+      }
+
+      this.CheckRemoteConnectionInterval = setInterval(CheckRemoteConnection, 5000, this._session, this._remote); 
+
       // Intercepts MTL messages before MIDI parsing in the next scope
       this._mtc.on('change', () => {
+        // Set SMTPEString to mtc.getSMTPEString() for CheckRemoteConnection()
+        SMTPEString = this._mtc.getSMTPEString()
         // Send to the second output
         this.send([null, {
           payload: {
@@ -118,6 +160,13 @@ module.exports = function (RED) {
       // Close all sessions, including remote ones
       this.on('close', (done) => {
         // Closure handled
+        if(streamID !=  undefined){
+          remoteStream = this._session.getStream(streamID);
+        }
+        if(remoteStream != null){
+          remoteStream.end()
+        }
+        clearInterval(this.CheckRemoteConnectionInterval)
         done()
       })
     } catch (error) {
