@@ -27,28 +27,13 @@
         "remote": "8b9bacf8.e6cc48",
         "name": "",
         "x": 110,
-        "y": 140,
+        "y": 260,
         "wires": [
             [],
             [
                 "122d8bcf.45f53c"
             ]
         ]
-    },
-    {
-        "id": "63b27a9c.1fca44",
-        "type": "debug",
-        "z": "b4a23bd2.4e1b08",
-        "name": "",
-        "active": true,
-        "tosidebar": false,
-        "console": false,
-        "tostatus": true,
-        "complete": "true",
-        "targetType": "full",
-        "x": 270,
-        "y": 60,
-        "wires": []
     },
     {
         "id": "122d8bcf.45f53c",
@@ -62,7 +47,7 @@
         "complete": "payload.time",
         "targetType": "msg",
         "x": 310,
-        "y": 140,
+        "y": 260,
         "wires": []
     },
     {
@@ -77,8 +62,8 @@
         "crontab": "",
         "once": true,
         "onceDelay": 0.1,
-        "x": 90,
-        "y": 320,
+        "x": 110,
+        "y": 180,
         "wires": [
             [
                 "bc551315.45117"
@@ -89,14 +74,15 @@
         "id": "db936965.066708",
         "type": "debug",
         "z": "b4a23bd2.4e1b08",
-        "name": "",
+        "name": "Global.CheckRemoteConnection",
         "active": true,
-        "tosidebar": true,
+        "tosidebar": false,
         "console": false,
-        "tostatus": false,
-        "complete": "false",
-        "x": 310,
-        "y": 380,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 660,
+        "y": 180,
         "wires": []
     },
     {
@@ -118,12 +104,47 @@
         "from": "",
         "to": "",
         "reg": false,
-        "x": 320,
-        "y": 320,
+        "x": 340,
+        "y": 180,
         "wires": [
             [
                 "db936965.066708"
             ]
         ]
+    },
+    {
+        "id": "5ba384cf.d078ac",
+        "type": "inject",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "topic": "",
+        "payload": "RTPMIDI_DISABLE",
+        "payloadType": "env",
+        "repeat": "",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 110,
+        "y": 100,
+        "wires": [
+            [
+                "67a32a28.fffe24"
+            ]
+        ]
+    },
+    {
+        "id": "67a32a28.fffe24",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "ENV - RTPMIDI_DISABLE",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload",
+        "targetType": "msg",
+        "x": 320,
+        "y": 100,
+        "wires": []
     }
 ]

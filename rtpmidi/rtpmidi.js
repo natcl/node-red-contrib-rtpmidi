@@ -160,7 +160,6 @@ module.exports = function (RED) {
       // Close all sessions, including remote ones
       this.on('close', (done) => {
         // Closure handled
-        console.log('delete session')
         if(streamID !=  undefined){
           remoteStream = this._session.getStream(streamID);
         }
