@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "description": "Node-RED template example project",
   "dependencies": {
-    "node-red": "1.0.6",
+    "node-red": "3.0.2",
     "node-red-contrib-rtpmidi": "file:.."
   },
   "repository": {
