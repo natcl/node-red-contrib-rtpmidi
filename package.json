@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "midi": "^1.0.0",
-    "mocha": "^6.1.4",
+    "mocha": "^10.1.0",
     "node-red": "1.0.6",
     "node-red-node-test-helper": "^0.2.2",
     "nyc": "^14.1.1",
