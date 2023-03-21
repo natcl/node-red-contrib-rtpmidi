@@ -146,5 +146,191 @@
         "x": 320,
         "y": 100,
         "wires": []
+    },
+    {
+        "id": "9bfeb4a1.b6dd98",
+        "type": "rtp-midi-mtc-in-node",
+        "z": "b4a23bd2.4e1b08",
+        "local": "eb8f4087.b7301",
+        "remote": "8b9bacf8.e6cc48",
+        "name": "",
+        "x": 110,
+        "y": 320,
+        "wires": [
+            [],
+            [
+                "e13461af.afe82"
+            ]
+        ]
+    },
+    {
+        "id": "e13461af.afe82",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload.time",
+        "targetType": "msg",
+        "x": 310,
+        "y": 320,
+        "wires": []
+    },
+    {
+        "id": "25e10f2.27932f",
+        "type": "rtp-midi-mtc-in-node",
+        "z": "b4a23bd2.4e1b08",
+        "local": "eb8f4087.b7301",
+        "remote": "8b9bacf8.e6cc48",
+        "name": "",
+        "x": 110,
+        "y": 380,
+        "wires": [
+            [],
+            [
+                "8f5c8ed8.ddbfd"
+            ]
+        ]
+    },
+    {
+        "id": "8f5c8ed8.ddbfd",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload.time",
+        "targetType": "msg",
+        "x": 310,
+        "y": 380,
+        "wires": []
+    },
+    {
+        "id": "99354e08.bdf17",
+        "type": "rtp-midi-mtc-in-node",
+        "z": "b4a23bd2.4e1b08",
+        "local": "eb8f4087.b7301",
+        "remote": "8b9bacf8.e6cc48",
+        "name": "",
+        "x": 110,
+        "y": 440,
+        "wires": [
+            [],
+            [
+                "3472837e.d6b91c"
+            ]
+        ]
+    },
+    {
+        "id": "3472837e.d6b91c",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload.time",
+        "targetType": "msg",
+        "x": 310,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "f2eb020d.e4752",
+        "type": "rtp-midi-mtc-in-node",
+        "z": "b4a23bd2.4e1b08",
+        "local": "eb8f4087.b7301",
+        "remote": "8b9bacf8.e6cc48",
+        "name": "",
+        "x": 110,
+        "y": 520,
+        "wires": [
+            [],
+            [
+                "9eff0c02.fee83"
+            ]
+        ]
+    },
+    {
+        "id": "9eff0c02.fee83",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload.time",
+        "targetType": "msg",
+        "x": 310,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "3b1012ae.cd44fe",
+        "type": "rtp-midi-mtc-in-node",
+        "z": "b4a23bd2.4e1b08",
+        "local": "eb8f4087.b7301",
+        "remote": "8b9bacf8.e6cc48",
+        "name": "",
+        "x": 110,
+        "y": 600,
+        "wires": [
+            [],
+            [
+                "8e75c257.a6a64"
+            ]
+        ]
+    },
+    {
+        "id": "8e75c257.a6a64",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload.time",
+        "targetType": "msg",
+        "x": 310,
+        "y": 600,
+        "wires": []
+    },
+    {
+        "id": "e87b7d13.4c8af",
+        "type": "rtp-midi-mtc-in-node",
+        "z": "b4a23bd2.4e1b08",
+        "local": "eb8f4087.b7301",
+        "remote": "8b9bacf8.e6cc48",
+        "name": "",
+        "x": 110,
+        "y": 680,
+        "wires": [
+            [],
+            [
+                "7ee742f2.9179ec"
+            ]
+        ]
+    },
+    {
+        "id": "7ee742f2.9179ec",
+        "type": "debug",
+        "z": "b4a23bd2.4e1b08",
+        "name": "",
+        "active": true,
+        "tosidebar": false,
+        "console": false,
+        "tostatus": true,
+        "complete": "payload.time",
+        "targetType": "msg",
+        "x": 310,
+        "y": 680,
+        "wires": []
     }
 ]
