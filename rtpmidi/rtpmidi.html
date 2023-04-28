@@ -13,7 +13,8 @@
         type: "remote-rtpmidi-session",
         required: true
       },
-      name: { value: "" }
+      name: { value: "" },
+      reconnectTime: { type: 'multitype', types:["str","num","bool"], value: 5000 }
     },
     inputs: 0,
     outputs: 2,
@@ -21,7 +22,15 @@
     label: function() {
       return this.name || "rtpMIDI MTC";
     },
-    paletteLabel: "rtpMIDI MTC"
+    paletteLabel: "rtpMIDI MTC",
+    oneditprepare: function () {
+      $("#node-input-reconnectTime").typedInput({
+          type:'num',
+          types:['global', 'jsonata', 'num','env'],
+          typeField: "#node-input-reconnectTime"
+      })
+    }
+
   });
 </script>
 
@@ -46,6 +55,14 @@
       <span>Remote RTP-MIDI Session</span>
     </label>
     <input type="text" id="node-input-remote" data-i18n="[placeholder]common.label.remote">
+  </div>
+  <div class="form-row">
+    <label for="node-input-reconnectTime">
+      <i class="fa fa-globe"></i>
+      <span>Reconnection Time</span>
+    </label>
+    <input type="text" id="node-input-reconnectTime">
+    <input type="hidden" id="node-input-reconnectTime-type">
   </div>
 </script>
 
