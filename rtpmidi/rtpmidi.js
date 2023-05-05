@@ -95,11 +95,9 @@ module.exports = function (RED) {
                 remoteStream = session.getStream(streamID)
               }
               if (remoteStream != null) {
-                console.log('remoteStream.end()')
                 remoteStream.end()
               }
               session.connect(remote)
-              console.log('session.connect(remote)')
             } else {
               lastSMTPEString = SMTPEString
             }
