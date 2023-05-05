@@ -68,49 +68,40 @@ module.exports = function (RED) {
       const globalContext = this.context().global
       let streamID
       let remoteStream = null
-      // let SMTPEString = 1
-      // const lastSMTPEString = 0
+      let SMTPEString = 1
+      let lastSMTPEString = 0
 
-      let streamConnected = false
+      // let streamConnected = false
 
       // Stream data from remote session. Use event streamAdded to get the stream unique SSRC
       this._session.on('streamAdded', (event) => {
         const { stream } = event
         streamID = stream.ssrc
         this.status({ fill: 'green', shape: 'dot', text: 'connected' })
-        console.log('streamAdded', streamID)
-        streamConnected = true
+        // streamConnected = true
       })
 
       this._session.on('streamRemoved', (event) => {
-        console.log('streamRemoved', streamID)
         this.status({ fill: 'yellow', shape: 'dot', text: 'disconnected' })
-        streamConnected = false
+        // streamConnected = false
       })
 
       // Check if we still get data from stream every 5 secs, if not restart connection.
       function CheckRemoteConnection (session, remote) {
         if (globalContext.get('CheckRemoteConnection')) {
           try {
-            console.log('remoteStream exists', !!remoteStream)
-            // console.log('SMTPEString', SMTPEString)
-            // console.log('lastSMTPEString', lastSMTPEString)
-            // console.log('streamID', streamID)
-            console.log('streamConnected', streamConnected)
-            // if (SMTPEString === lastSMTPEString) {
-            //   if (streamID !== undefined) {
-            //     remoteStream = session.getStream(streamID)
-            //   }
-            //   if (remoteStream != null) {
-            //     remoteStream.end()
-            //   }
-            //   session.connect(remote)
-            // } else {
-            //   lastSMTPEString = SMTPEString
-            // }
-
-            if (!streamConnected) {
+            if (SMTPEString === lastSMTPEString) {
+              if (streamID !== undefined) {
+                remoteStream = session.getStream(streamID)
+              }
+              if (remoteStream != null) {
+                console.log('remoteStream.end()')
+                remoteStream.end()
+              }
               session.connect(remote)
+              console.log('session.connect(remote)')
+            } else {
+              lastSMTPEString = SMTPEString
             }
           } catch (error) {
             console.warn(error)
@@ -118,20 +109,32 @@ module.exports = function (RED) {
         }
       }
 
-      this.CheckRemoteConnectionInterval = setInterval(CheckRemoteConnection, reconnectTime, this._session, this._remote)
+      this.CheckRemoteConnectionInterval = setInterval(
+        CheckRemoteConnection,
+        reconnectTime,
+        this._session,
+        this._remote
+      )
 
       // Intercepts MTL messages before MIDI parsing in the next scope
       this._mtc.on('change', () => {
         // Set SMTPEString to mtc.getSMTPEString() for CheckRemoteConnection()
-        // SMTPEString = this._mtc.getSMTPEString()
+        SMTPEString = this._mtc.getSMTPEString()
         // Send to the second output
-        this.send([null, {
-          payload: {
-            position: this._mtc.songPosition,
-            time: this._mtc.getSMTPEString()
+        this.send([
+          null,
+          {
+            payload: {
+              position: this._mtc.songPosition,
+              time: this._mtc.getSMTPEString()
+            }
           }
-        }])
-        this.status({ fill: 'green', shape: 'dot', text: this._mtc.getSMTPEString() })
+        ])
+        this.status({
+          fill: 'green',
+          shape: 'dot',
+          text: this._mtc.getSMTPEString()
+        })
       })
 
       let messageArray = []
