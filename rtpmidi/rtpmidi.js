@@ -71,19 +71,15 @@ module.exports = function (RED) {
       let SMTPEString = 1
       let lastSMTPEString = 0
 
-      // let streamConnected = false
-
       // Stream data from remote session. Use event streamAdded to get the stream unique SSRC
       this._session.on('streamAdded', (event) => {
         const { stream } = event
         streamID = stream.ssrc
         this.status({ fill: 'green', shape: 'dot', text: 'connected' })
-        // streamConnected = true
       })
 
       this._session.on('streamRemoved', (event) => {
         this.status({ fill: 'yellow', shape: 'dot', text: 'disconnected' })
-        // streamConnected = false
       })
 
       // Check if we still get data from stream every 5 secs, if not restart connection.
