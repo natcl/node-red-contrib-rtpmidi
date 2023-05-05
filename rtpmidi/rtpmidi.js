@@ -25,7 +25,7 @@ module.exports = function (RED) {
     }
 
     try {
-      const { local, remote } = config
+      const { local, remote, reconnectTime } = config
 
       if (!local) throw new Error('ERROR: Missing local session config node')
       if (!remote) throw new Error('ERROR: Missing local session config node')
@@ -63,56 +63,72 @@ module.exports = function (RED) {
         this.status({ fill: 'red', shape: 'dot', text: 'error' })
       })
 
-      //CHECK IF VALUE CHANGE OVERTIME TO FORCE RECONNECTION WITH THE REMOTE SESSION  
+      // CHECK IF VALUE CHANGE OVERTIME TO FORCE RECONNECTION WITH THE REMOTE SESSION
       // reconnection Variables
-      let globalContext = this.context().global;
-      let streamID = undefined
+      const globalContext = this.context().global
+      let streamID
       let remoteStream = null
-      let SMTPEString =  1
-      let lastSMTPEString =  0
+      let SMTPEString = 1
+      let lastSMTPEString = 0
 
       // Stream data from remote session. Use event streamAdded to get the stream unique SSRC
       this._session.on('streamAdded', (event) => {
-          const { stream } = event;
-          streamID =  stream.ssrc
-        });
+        const { stream } = event
+        streamID = stream.ssrc
+        this.status({ fill: 'green', shape: 'dot', text: 'connected' })
+      })
+
+      this._session.on('streamRemoved', (event) => {
+        this.status({ fill: 'yellow', shape: 'dot', text: 'disconnected' })
+      })
 
       // Check if we still get data from stream every 5 secs, if not restart connection.
-      function CheckRemoteConnection(session, remote){
-        if(!globalContext.get("CheckRemoteConnection")){
-          return
-        }else{
+      function CheckRemoteConnection (session, remote) {
+        if (globalContext.get('CheckRemoteConnection')) {
           try {
-            if(SMTPEString == lastSMTPEString){
-              if(streamID !=  undefined){
-                remoteStream = session.getStream(streamID);
+            if (SMTPEString === lastSMTPEString) {
+              if (streamID !== undefined) {
+                remoteStream = session.getStream(streamID)
               }
-              if(remoteStream != null){
+              if (remoteStream != null) {
                 remoteStream.end()
               }
               session.connect(remote)
-            }else{
+            } else {
               lastSMTPEString = SMTPEString
             }
-          }catch (error) {
-                console.warn(error)
+          } catch (error) {
+            console.warn(error)
           }
         }
       }
 
-      this.CheckRemoteConnectionInterval = setInterval(CheckRemoteConnection, 5000, this._session, this._remote); 
+      this.CheckRemoteConnectionInterval = setInterval(
+        CheckRemoteConnection,
+        reconnectTime,
+        this._session,
+        this._remote
+      )
 
       // Intercepts MTL messages before MIDI parsing in the next scope
       this._mtc.on('change', () => {
         // Set SMTPEString to mtc.getSMTPEString() for CheckRemoteConnection()
         SMTPEString = this._mtc.getSMTPEString()
         // Send to the second output
-        this.send([null, {
-          payload: {
-            position: this._mtc.songPosition,
-            time: this._mtc.getSMTPEString()
+        this.send([
+          null,
+          {
+            payload: {
+              position: this._mtc.songPosition,
+              time: this._mtc.getSMTPEString()
+            }
           }
-        }])
+        ])
+        this.status({
+          fill: 'green',
+          shape: 'dot',
+          text: this._mtc.getSMTPEString()
+        })
       })
 
       let messageArray = []
@@ -160,10 +176,10 @@ module.exports = function (RED) {
       // Close all sessions, including remote ones
       this.on('close', (done) => {
         // Closure handled
-        if(streamID !=  undefined){
-          remoteStream = this._session.getStream(streamID);
+        if (streamID !== undefined) {
+          remoteStream = this._session.getStream(streamID)
         }
-        if(remoteStream != null){
+        if (remoteStream != null) {
           remoteStream.end()
         }
         clearInterval(this.CheckRemoteConnectionInterval)
